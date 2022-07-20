@@ -1,13 +1,18 @@
+
+gpio = None
+
 class GPIOpin:
     def __init__(self, pin):
-        import gpio
+        import gpio as _gpio
+        global gpio; gpio = _gpio
         self.pin = pin
+        gpio.setup(self.pin, gpio.OUT)
 
     def set_high(self):
-        pass
+        gpio.set(self.pin, gpio.HIGH)
 
     def set_low(self):
-        pass
+        gpio.set(self.pin, gpio.LOW)
 
 class sim_GPIOpin:
     def __init__(self, pin):
