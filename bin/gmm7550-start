@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import gmm7550
+
+# config = gmm7550.Config('VisionFive')
+# config = gmm7550.Config('RPi')
+config = gmm7550.Config('sim')
+
+print('GMM-7550 Control (%s)' % config.board_name)
+
+g = gmm7550.GMM7550(config)
+
+if __name__ == '__main__':
+    g.start()

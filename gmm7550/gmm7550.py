@@ -1,65 +1,29 @@
-class GPIO():
+from gmm7550 import gatemate as gm
 
-    OFF_SW_RST_N, OFF_POR_EN, OFF_CFG_FAILED_N, OFF_CFG_DONE = range(4)
+class GMM7550():
 
-    def __init__(self, bus, addr=0x74):
-        self.bus = bus
-        self.addr = addr
+    def __init__(self, cfg):
+        self.cfg = cfg
 
-        self.bus.acquire()
-
-        self.p0 = self.bus.read_byte_data(self.addr, 0)
-
-        self.sw_rst = ((self.p0 >> self.OFF_SW_RST_N ) & 0x01) == 0
-        self.por_en = ((self.p0 >> self.OFF_POR_EN   ) & 0x01) == 1
-
-        self.p1 = self.bus.read_byte_data(self.addr, 1)
-
-        self.cfg_mode = self.p1 & 0x0f
-        self.spisel = (self.p1 >> 4) & 0x0f
-
-        self.bus.write_byte_data(self.addr, 2, self.p0)
-        self.bus.write_byte_data(self.addr, 3, self.p1)
-
-        self.bus.write_byte_data(self.addr, 6,
-            0xff & ~((1 << self.OFF_SW_RST_N) | (1 << self.OFF_POR_EN))
-        )
-
-        self.bus.write_byte_data(self.addr, 7, 0x00)
-
-        self.bus.release()
-
-    def _set_bit(self, bit_offset, value):
-        if value:
-            self.p0 |= (1 << bit_offset)
+        if self.cfg.gpio:
+            from gmm7550.gpio import GPIOpin
         else:
-            self.p0 &= ~(1 << bit_offset)
+            print('import GPIO')
+            from gmm7550.gpio import sim_GPIOpin as GPIOpin
 
-        self.bus.acquire()
-        self.bus.write_byte_data(self.addr, 2, self.p0)
-        self.bus.release()
+        self.power_en = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'power_en'))
+        self.dcdc_dis = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'dcdc_dis'))
+        self.mr = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'mr'))
 
-    def get_reset(self): return self.sw_rst
-    def reset_on(self):
-        self.sw_rst = True
-        self._set_bit(self.OFF_SW_RST_N, 0)
-    def reset_off(self):
-        self.sw_rst = False
-        self._set_bit(self.OFF_SW_RST_N, 1)
+        if self.cfg.i2c:
+            from gmm7550.sem_smbus import SMBus
+            self.i2c = SMBus(self.cfg.i2c)
 
-    def por_en(self): return self.por_en
-    def cfg_mode(self): return self.cfg_mode
-    def spisel(self): return self.spisel
+        if self.cfg.id_i2c:
+            from gmm7550.sem_smbus import SMBus
+            self.id_i2c = SMBus(self.cfg.id_i2c)
 
-    def _get_bit(self, bit_offset):
-        self.bus.acquire()
-        self.p0 = self.bus.read_byte_data(self.addr, 0)
-        self.bus.release()
-        return (self.p0 >> bit_offset) & 1
-
-    def cfg_failed_n(self):
-        return self._get_bit(self.OFF_CFG_FAILED_N)
-
-    def cfg_done(self):
-        return self._get_bit(self.OFF_CFG_DONE)
-
+    def start(self):
+        self.power_en.set_high()
+        self.dcdc_dis.set_low()
+        self.mr.set_low()
