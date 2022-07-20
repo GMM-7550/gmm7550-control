@@ -2,9 +2,9 @@
 
 import gmm7550
 
-# config = gmm7550.Config('VisionFive')
+config = gmm7550.Config('VisionFive')
 # config = gmm7550.Config('RPi')
-config = gmm7550.Config('sim')
+# config = gmm7550.Config('sim')
 
 print('GMM-7550 Control (%s)' % config.board_name)
 
