@@ -1,31 +1,17 @@
-import gpio
+class HAT_GMM7550():
 
-GPIO_PIN_NUM = {
-    'mr': 492,
-    'pwr_on': 494,
-    'dcdc_off': 470,
-}
+    def __init__(self, cfg):
+        self.cfg = cfg
 
-def gpio_init():
-    gpio.setup(GPIO_PIN_NUM['mr'],       gpio.OUT, initial = True)
-    gpio.setup(GPIO_PIN_NUM['pwr_on'],   gpio.OUT, initial = False)
-    gpio.setup(GPIO_PIN_NUM['dcdc_off'], gpio.OUT, initial = True)
+        if self.cfg.gpio:
+            from gmm7550.gpio import GPIOpin
+        else:
+            print('import GPIO')
+            from gmm7550.gpio import sim_GPIOpin as GPIOpin
 
-def vin_on():
-    gpio.set(GPIO_PIN_NUM['pwr_on'], gpio.HIGH)
-
-def vin_off():
-    gpio.set(GPIO_PIN_NUM['pwr_on'], gpio.LOW)
-
-def dcdc_enable():
-    gpio.set(GPIO_PIN_NUM['dcdc_off'], gpio.LOW)
-
-def dcdc_disable():
-    gpio.set(GPIO_PIN_NUM['dcdc_off'], gpio.HIGH)
-
-def reset_on():
-    gpio.set(GPIO_PIN_NUM['mr'], gpio.HIGH)
-
-def reset_off():
-    gpio.set(GPIO_PIN_NUM['mr'], gpio.LOW)
-
+        self.power_en = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'power_en'))
+        self.power_en.set_low()
+        self.dcdc_dis = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'dcdc_dis'))
+        self.dcdc_dis.set_high()
+        self.mr = GPIOpin(self.cfg.name_or_value(self.cfg.gpio, 'mr'))
+        self.mr.set_high()
