@@ -12,5 +12,5 @@ a.set_range(1)
 a.start_vi_cont()
 
 for i in range(10):
-    print(a.get_vi())
+    print("V = %4.2f V,  I = %5.0f mA" % a.get_vi())
     sleep(.5)
