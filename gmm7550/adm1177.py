@@ -1,3 +1,13 @@
+from sem_smbus import i2c_msg
+
+V_CONT = 0x01
+V_ONCE = 0x02
+I_CONT = 0x04
+I_ONCE = 0x08
+VRANGE = 0x10
+STATUS_RD = 0x40
+EXT_CMD_R = 0x80
+
 class ADM1177:
     def __init__(self, bus, adr=0, r_sense=0.050):
         self.bus = bus
@@ -9,22 +19,24 @@ class ADM1177:
 
     def set_range(self, r):
         if r == 0:
-            self.cmd_mask &= ~0x40
+            self.cmd_mask &= ~VRANGE
             self.v_range = 26.35 # 14:1 * 1.902V
         else:
-            self.cmd_mask |= 0x40
+            self.cmd_mask |= VRANGE
             self.v_range = 6.65 # 7:2 * 1.902V
 
         self.bus.write_byte(self.addr, self.cmd_mask)
  
     def start_vi_cont(self):
-        self.bus.write_byte(self.addr, self.cmd_mask | 0x05)
+        self.bus.write_byte(self.addr, self.cmd_mask | V_CONT | I_CONT)
 
     def stop_vi(self):
         self.bus.write_byte(self.addr, self.cmd_mask)
 
     def get_vi(self):
-        # read three bytes
+        m = i2c_msg.read(self.addr, 3)
+        self.bus.i2c_rdwr(m)
+        b = list(m)
         v_raw = b[0] << 4 | ((b[2] >> 4) & 0x0f)
         i_raw = b[1] << 4 | (b[2] & 0x0f)
         v = v_raw * (self.v_range / 4096)

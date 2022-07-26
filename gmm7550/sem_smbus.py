@@ -1,4 +1,4 @@
-import smbus
+import smbus2 as smbus
 import threading
 
 class SMBus(smbus.SMBus):
@@ -12,3 +12,6 @@ class SMBus(smbus.SMBus):
 
     def release(self):
         return self.sem.release()
+
+class i2c_msg(smbus.i2c_msg):
+    pass
