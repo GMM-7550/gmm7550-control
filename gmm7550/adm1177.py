@@ -25,17 +25,25 @@ class ADM1177:
             self.cmd_mask |= VRANGE
             self.v_range = 6.65 # 7:2 * 1.902V
 
+        self.bus.acquire()
         self.bus.write_byte(self.addr, self.cmd_mask)
+        self.bus.release()
  
     def start_vi_cont(self):
+        self.bus.acquire()
         self.bus.write_byte(self.addr, self.cmd_mask | V_CONT | I_CONT)
+        self.bus.release()
 
     def stop_vi(self):
+        self.bus.acquire()
         self.bus.write_byte(self.addr, self.cmd_mask)
+        self.bus.release()
 
     def get_vi(self):
         m = i2c_msg.read(self.addr, 3)
+        self.bus.acquire()
         self.bus.i2c_rdwr(m)
+        self.bus.release()
         b = list(m)
         v_raw = b[0] << 4 | ((b[2] >> 4) & 0x0f)
         i_raw = b[1] << 4 | (b[2] & 0x0f)
