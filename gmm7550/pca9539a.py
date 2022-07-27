@@ -10,11 +10,17 @@ class PCA9539A:
     def get_output(self):
         return self.bus.read_word_data(self.addr, 2)
 
+    def get_inversion(self):
+        return self.bus.read_word_data(self.addr, 4)
+
     def get_config(self):
         return self.bus.read_word_data(self.addr, 6)
 
     def set_output(self, data):
         self.bus.write_word_data(self.addr, 2, data)
+
+    def set_inversion(self, data):
+        self.bus.write_word_data(self.addr, 4, data)
 
     def set_config(self, data):
         self.bus.write_word_data(self.addr, 6, data)

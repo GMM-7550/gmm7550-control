@@ -1,4 +1,4 @@
-from sem_smbus import i2c_msg
+from gmm7550.sem_smbus import i2c_msg
 
 V_CONT = 0x01
 V_ONCE = 0x02

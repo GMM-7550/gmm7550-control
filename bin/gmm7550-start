@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import time
+
 import gmm7550
 
 config = gmm7550.Config('VisionFive')
@@ -12,3 +14,5 @@ g = gmm7550.GMM7550(config)
 
 if __name__ == '__main__':
     g.start()
+    time.sleep(2)
+    g.soft_reset_pulse()
