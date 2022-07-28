@@ -51,3 +51,6 @@ class ADM1177:
         i = i_raw * (self.i_range / 4096) / self.r_sense
         return (v, i) # (V, mA)
 
+    def get_vi_string(self):
+        return "V = %4.2f V,  I = %5.0f mA" % self.get_vi()
+

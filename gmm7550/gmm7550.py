@@ -89,4 +89,4 @@ class GMM7550():
         self.i2c_gpio = PCA9539A(self.i2c)
         self._restore_i2c_gpio_state()
         self.pll = CDCE6214(self.i2c)
-        print("V = %4.2f V,  I = %5.0f mA" % self.hat.adm1177.get_vi())
+        print(self.hat.adm1177.get_vi_string())

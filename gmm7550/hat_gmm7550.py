@@ -24,6 +24,6 @@ class HAT_GMM7550():
             self.adm1177 = ADM1177(self.i2c)
             self.adm1177.set_range(1)
             self.adm1177.start_vi_cont()
-            print("V = %4.2f V,  I = %5.0f mA" % self.adm1177.get_vi())
+            print(self.adm1177.get_vi_string())
         else:
             self.i2c = None
