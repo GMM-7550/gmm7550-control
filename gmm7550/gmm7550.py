@@ -40,6 +40,8 @@ class GMM7550():
         self.pll = None
 
         # Hardware defaults
+        self.refsel = 1
+        self.hwswctrl = 1
         self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
         self.spi_sel = [0, 0, 0, 0]
         self.soft_reset = False
@@ -48,31 +50,42 @@ class GMM7550():
         return self.active
 
     def _restore_i2c_gpio_state(self):
+        self.i2c.acquire()
         self.i2c_gpio.set_inversion(I2C_GPIO_inversion)
         out = 0x0000
         for i in range(3):
             out |= self.spi_sel[i] << (12+i)
         out |= self.cfg_mode.value << 8
         out |= I2C_GPIO.gpio1 | I2C_GPIO.gpio4
+        if self.refsel:
+            out |= I2C_GPIO.refsel
+        if self.hwswctrl:
+            out |= I2C_GPIO.hwswctrl
         out |= I2C_GPIO.por_en
         if not self.soft_reset:
             out |= I2C_GPIO.srst
         self.i2c_gpio.set_output(out)
         self.i2c_gpio.set_config(I2C_GPIO_config)
+        self.i2c.release()
 
     def soft_reset_on(self):
         self.soft_reset = True
         if self.active:
+            self.i2c.acquire()
             o = self.i2c_gpio.get_output()
             o &= ~I2C_GPIO.srst
             self.i2c_gpio.set_output(o)
+            self.i2c.release()
 
     def soft_reset_off(self):
         self.soft_reset = False
         if self.active:
+            self.i2c.acquire()
             o = self.i2c_gpio.get_output()
             o |= I2C_GPIO.srst
             self.i2c_gpio.set_output(o)
+            self.i2c.release()
+
     def soft_reset_pulse(self):
         self.soft_reset_on()
         sleep(self.mr_delay)
