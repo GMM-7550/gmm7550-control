@@ -2,11 +2,10 @@
 
 from time import sleep
 
-import sem_smbus as smbus
-import adm1177
+import gmm7550
 
-b = smbus.SMBus(1)
-a = adm1177.ADM1177(b)
+b = gmm7550.sem_smbus.SMBus(1)
+a = gmm7550.adm1177.ADM1177(b)
 
 a.set_range(1)
 a.start_vi_cont()
