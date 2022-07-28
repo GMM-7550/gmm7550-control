@@ -14,5 +14,9 @@ g = gmm7550.GMM7550(config)
 
 if __name__ == '__main__':
     g.start()
-    time.sleep(2)
-    g.soft_reset_pulse()
+    g.soft_reset_on()
+    time.sleep(0.2)
+    g.soft_reset_off()
+    time.sleep(0.5)
+    for i in range(0x10):
+        print("%02x: %04x" % (i, g.pll.read_reg(i)))
