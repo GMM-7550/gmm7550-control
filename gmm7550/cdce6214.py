@@ -22,3 +22,12 @@ class CDCE6214:
         self.bus.acquire()
         self.bus.i2c_rdwr(m)
         self.bus.release()
+
+    def read_eeprom(self):
+        eeprom = []
+        self.bus.acquire()
+        self.write_reg(0x000b, 0x0000)
+	for i in range(64):
+            eeprom.append(self.read_reg(0x000c))
+        self.bus.release()
+        return eeprom
