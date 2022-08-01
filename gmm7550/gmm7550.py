@@ -42,7 +42,8 @@ class GMM7550():
         # Hardware defaults
         self.refsel = 1
         self.hwswctrl = 1
-        self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
+        # self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
+        self.cfg_mode = gm.CFG_mode.JTAG
         self.spi_sel = [0, 0, 0, 0]
         self.soft_reset = False
 
@@ -103,3 +104,9 @@ class GMM7550():
         self._restore_i2c_gpio_state()
         self.pll = CDCE6214(self.i2c)
         print(self.hat.adm1177.get_vi_string())
+
+    def poweroff(self):
+        self.active = False
+        self.hat.mr.set_high()
+        self.hat.dcdc_dis.set_high()
+        self.hat.power_en.set_low()
