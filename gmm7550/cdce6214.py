@@ -42,3 +42,12 @@ class CDCE6214:
         # TODO -- update CRC ???
         self.write_reg(0x000f, 0xA020) # lock EEPROM
         # self.bus.release()
+
+    def read_eeprom_string(self):
+        eeprom = self.read_eeprom()
+        s = '['
+        for w in eeprom:
+            s += '0x%04x,\n  ' % w
+        s += ']'
+        return s
+

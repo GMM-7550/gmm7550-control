@@ -14,7 +14,8 @@ g = gmm7550.GMM7550(config)
 
 if __name__ == '__main__':
     g.start()
-    time.sleep(1)
+    time.sleep(0.5)
+    print(g.pll.read_eeprom_string())
     g.poweroff()
 #    g.soft_reset_on()
 #    time.sleep(0.2)
