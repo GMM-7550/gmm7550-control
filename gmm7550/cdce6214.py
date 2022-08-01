@@ -3,6 +3,8 @@ from gmm7550.sem_smbus import i2c_msg
 
 class CDCE6214:
 
+    EEPROM_SIZE = 64 # 16-bit words
+
     def __init__(self, bus, addr=0x68):
         self.bus = bus
         self.addr = addr
@@ -27,13 +29,14 @@ class CDCE6214:
         eeprom = []
         # self.bus.acquire()
         self.write_reg(0x000b, 0x0000) # set start read address
-        for i in range(64):
+        for i in range(self.EEPROM_SIZE):
             eeprom.append(self.read_reg(0x000c))
         # self.bus.release()
         return eeprom
 
     def write_eeprom(self, eeprom):
-        assert(len(eeprom) == 64, "EEPROM image size should be 64 16-bit words")
+        assert(len(eeprom) == self.EEPROM_SIZE,
+               'EEPROM image size should be %d 16-bit words' % self.EEPROM_SIZE)
         # self.bus.acquire()
         self.write_reg(0x000f, 0x5020) # unlock EEPROM
         self.write_reg(0x000d, 0x0000) # set start write address
