@@ -40,12 +40,12 @@ class GMM7550():
         self.pll = None
 
         # Hardware defaults
-        self.refsel = 1
+        self.refsel = 0
         self.hwswctrl = 1
         # self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
         self.cfg_mode = gm.CFG_mode.JTAG
         self.spi_sel = [0, 0, 0, 0]
-        self.soft_reset = False
+        self.soft_reset = True
 
     def is_active(self):
         return self.active
@@ -102,6 +102,7 @@ class GMM7550():
 
         self.i2c_gpio = PCA9539A(self.i2c)
         self._restore_i2c_gpio_state()
+        self.soft_reset_off()
         self.pll = CDCE6214(self.i2c)
         print(self.hat.adm1177.get_vi_string())
 
