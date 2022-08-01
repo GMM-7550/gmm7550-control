@@ -27,7 +27,7 @@ class CDCE6214:
         eeprom = []
         self.bus.acquire()
         self.write_reg(0x000b, 0x0000) # set start read address
-	for i in range(64):
+        for i in range(64):
             eeprom.append(self.read_reg(0x000c))
         self.bus.release()
         return eeprom
