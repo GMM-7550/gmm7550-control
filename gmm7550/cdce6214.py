@@ -27,24 +27,24 @@ class CDCE6214:
 
     def read_eeprom(self):
         eeprom = []
-        # self.bus.acquire()
+        self.bus.acquire()
         self.write_reg(0x000b, 0x0000) # set start read address
         for i in range(self.EEPROM_SIZE):
             eeprom.append(self.read_reg(0x000c))
-        # self.bus.release()
+        self.bus.release()
         return eeprom
 
     def write_eeprom(self, eeprom):
         assert(len(eeprom) == self.EEPROM_SIZE,
                'EEPROM image size should be %d 16-bit words' % self.EEPROM_SIZE)
-        # self.bus.acquire()
+        self.bus.acquire()
         self.write_reg(0x000f, 0x5020) # unlock EEPROM
         self.write_reg(0x000d, 0x0000) # set start write address
         for w in eeprom:
             self.write_reg(0x000e, w)
         # TODO -- update CRC ???
         self.write_reg(0x000f, 0xA020) # lock EEPROM
-        # self.bus.release()
+        self.bus.release()
 
     def read_eeprom_string(self):
         eeprom = self.read_eeprom()
