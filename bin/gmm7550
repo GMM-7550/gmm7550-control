@@ -4,6 +4,7 @@ connected via HAT adapter board to a VisionFive or Raspberry Pi SBC'''
 
 __version__ = '0.1.0'
 
+import time
 import argparse
 import gmm7550
 
@@ -41,6 +42,13 @@ command = { c : cmd.add_parser(c) for c in [
     'pll',
     'id',
 ]}
+
+############################################################
+#  Power
+############################################################
+
+command['on'].set_defaults(func = lambda gmm, args: gmm.start())
+command['off'].set_defaults(func = lambda gmm, args: gmm.poweroff())
 
 ############################################################
 #  PLL
