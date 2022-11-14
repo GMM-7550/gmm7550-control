@@ -1,25 +1,78 @@
 #!/usr/bin/env python3
+'''Command line tool to program, test, and control GMM-7550 module
+connected via HAT adapter board to a VisionFive or Raspberry Pi SBC'''
 
-import time
+__version__ = '0.1.0'
 
+import argparse
 import gmm7550
 
-config = gmm7550.Config('VisionFive')
-# config = gmm7550.Config('RPi')
-# config = gmm7550.Config('sim')
+parser = argparse.ArgumentParser(description = __doc__)
 
-print('GMM-7550 Control (%s)' % config.board_name)
+############################################################
+#  Common options
+############################################################
 
-g = gmm7550.GMM7550(config)
+parser.add_argument('-V', '--version', action='version', version = '%(prog)s: ' + __version__ + ', GMM-7550 control library: ' + '0.1.0')
+# parser.add_argument('-V', '--version', action='version', version = '%(prog)s: ' + __version__ + ', GMM-7550 control library: ' + gmm7550.__version__)
+
+parser.add_argument('-v', '--verbose', action='store_true', help='be more verbose')
+
+parser.add_argument('-c', '--config', type=str, choices=['visionfive', 'rpi', 'sim'],
+                    default='visionfive',
+                    help='select target hardware configuration')
+
+parser.add_argument('-p', '--pll-page', type=int, choices=[0, 1],
+                    default=0,
+                    help='PLL configuration EEPROM page')
+
+cmd = parser.add_subparsers(title='Commands',
+                            # dest='cmd',
+                            )
+
+############################################################
+#  Commands
+############################################################
+
+command = { c : cmd.add_parser(c) for c in [
+    'power',
+    'on', 'off',
+    'reset',
+    'pll',
+    'id',
+]}
+
+############################################################
+#  PLL
+############################################################
+
+c = command['pll']
+
+c.add_argument('-c', '--configure',
+               action='store_true',
+               help='Configure PLL register')
+c.add_argument('-p', '--program',
+               help='Program PLL EEPROM page',
+               dest='pll_program',
+               type=int, choices=[0, 1], default=None)
+
+def cmd_pll(gmm, args):
+    print(" PLL \n-----\n", args)
+    gmm.start()
+    time.sleep(0.5)
+    print(gmm.pll.read_eeprom_string())
+    gmm.poweroff()
+
+c.set_defaults(func = cmd_pll)
+
+############################################################
 
 if __name__ == '__main__':
-    g.start()
-    time.sleep(0.5)
-    print(g.pll.read_eeprom_string())
-    g.poweroff()
-#    g.soft_reset_on()
-#    time.sleep(0.2)
-#    g.soft_reset_off()
-#    time.sleep(0.5)
-#    for i in range(0x10):
-#        print("%02x: %04x" % (i, g.pll.read_reg(i)))
+    args = parser.parse_args()
+    config = gmm7550.Config(args.config)
+    gmm = gmm7550.GMM7550(config)
+
+    if 'func' in vars(args):
+        args.func(gmm, args)
+    else:
+        print(args)
