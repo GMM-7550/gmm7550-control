@@ -5,9 +5,9 @@ import importlib
 class Config:
 
     def __init__(self, cfg_name):
-        self.name = cfg_name.lower()
+        super().__setattr__('name', cfg_name.lower())
         try:
-            self.cfg = importlib.import_module('.%s' % self.name, package='gmm7550.configs')
+            super().__setattr__('cfg', importlib.import_module('.%s' % self.name, package='gmm7550.configs'))
         except ImportError as e:
             print('Cannot load configuration: "%s"' % self.name, file=sys.stderr)
             print(e, file=sys.stderr)
@@ -18,6 +18,9 @@ class Config:
             return getattr(self.cfg, key)
         else:
             return None
+
+    def __setattr__(self, key, value):
+        self.cfg.__setattr__(key, value)
 
     def name_or_value(self, d, k):
         if d:
