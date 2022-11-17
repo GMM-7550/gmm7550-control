@@ -59,7 +59,7 @@ c = command['pll']
 c.add_argument('-c', '--configure',
                action='store_true',
                help='Configure PLL register')
-c.add_argument('-p', '--program',
+c.add_argument('-P', '--program',
                help='Program PLL EEPROM page',
                dest='pll_program',
                type=int, choices=[0, 1], default=None)
