@@ -78,6 +78,7 @@ c.set_defaults(func = cmd_pll)
 if __name__ == '__main__':
     args = parser.parse_args()
     config = gmm7550.Config(args.config)
+    config.pll_page = args.pll_page
     gmm = gmm7550.GMM7550(config)
 
     if 'func' in vars(args):
