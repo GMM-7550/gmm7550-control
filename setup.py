@@ -10,5 +10,5 @@ setup(
     license = "MIT",
     url = "https://github.com/ak-fau/gmm7550-control",
     packages=['gmm7550'],
-    scripts=['bin/gmm7550-start', 'bin/test-adm1177']
+    scripts=['bin/gmm7550', 'bin/test-adm1177']
 )
