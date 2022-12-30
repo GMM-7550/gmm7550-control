@@ -56,9 +56,14 @@ command['off'].set_defaults(func = lambda gmm, args: gmm.poweroff())
 
 c = command['pll']
 
-c.add_argument('-c', '--configure',
+c.epilog = 'Without any option: print PLL current configuration registers\n'
+
+c.add_argument('-e', '--eeprom',
                action='store_true',
-               help='Configure PLL register')
+               help='Print content of the PLL configuration EEPROM')
+# c.add_argument('-c', '--configure',
+#                action='store_true',
+#                help='Configure PLL register')
 c.add_argument('-P', '--program',
                help='Program PLL EEPROM page',
                dest='pll_program',
@@ -69,15 +74,17 @@ def prog_page(g, page):
     g.pll.write_eeprom_page(page, page0_gmm)
 
 def cmd_pll(gmm, args):
-    print(" PLL \n-----\n", args)
     gmm.start()
     time.sleep(0.5)
-    if pll_program == None:
-        print(gmm.pll.read_eeprom_string())
+    if args.pll_program == None:
+        if args.eeprom:
+            print(gmm.pll.eeprom_as_string())
+        else:
+            print(gmm.pll.configuration_as_string())
     else:
         prog_page(gmm, pll_program)
-    time.sleep(0.5)
-    gmm.poweroff()
+    # time.sleep(0.1)
+    # gmm.poweroff()
 
 c.set_defaults(func = cmd_pll)
 

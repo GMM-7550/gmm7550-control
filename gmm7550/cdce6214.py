@@ -37,19 +37,6 @@ class CDCE6214:
         self.bus.release()
         return eeprom
 
-    def write_eeprom(self, eeprom):
-        assert(len(eeprom) == self.EEPROM_SIZE,
-               'EEPROM image size should be %d 16-bit words' % self.EEPROM_SIZE)
-        self.bus.acquire()
-        self.write_reg(0x000f, 0x5020) # unlock EEPROM
-        self.write_reg(0x000d, 0x0000) # set start write address
-        for w in eeprom:
-            self.write_reg(0x000e, w)
-            sleep(0.1)
-        # TODO -- update CRC ???
-        self.write_reg(0x000f, 0xA020) # lock EEPROM
-        self.bus.release()
-
     def write_eeprom_page(self, page, eeprom_page):
         assert(page == 0 or page == 1,
                'EEPROM Page number should be 0 or 1 (got %d)' % page)
@@ -68,10 +55,29 @@ class CDCE6214:
         self.write_reg(0x000f, 0xA020) # lock EEPROM
         self.bus.release()
 
-    def read_eeprom_string(self):
+    def eeprom_as_string(self):
         eeprom = self.read_eeprom()
-        s = '['
-        for w in eeprom:
-            s += '0x%04x,\n  ' % w
-        s += ']'
+        s = 'pll_eeprom = {\n'
+        s += '\'factory\' : [\n    '
+        for i in range(self.EEPROM_F_PAGE_SIZE):
+            s += '0x%04x, ' % eeprom[i]
+            if i%8 == 7:
+                s += '\n    '
+        s += '],\n'
+        s += '0 : [\n    '
+        for i in range(self.EEPROM_PAGE_SIZE):
+            s += '0x%04x, ' % eeprom[self.EEPROM_F_PAGE_SIZE + i]
+            if i%8 == 7:
+                s += '\n    '
+        s += '],\n'
+        s += '1 : [\n    '
+        for i in range(self.EEPROM_PAGE_SIZE):
+            s += '0x%04x, ' % eeprom[self.EEPROM_F_PAGE_SIZE + self.EEPROM_PAGE_SIZE + i]
+            if i%8 == 7:
+                s += '\n    '
+        s += ']\n'
+        s += '}'
         return s
+
+    def configuration_as_string(self):
+        return 'PLL Configuration registers'
