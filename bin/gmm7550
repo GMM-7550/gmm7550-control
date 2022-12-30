@@ -64,11 +64,19 @@ c.add_argument('-P', '--program',
                dest='pll_program',
                type=int, choices=[0, 1], default=None)
 
+def prog_page(g, page):
+    from gmm7550.cdce6214_eeprom import page0_gmm
+    g.pll.write_eeprom_page(page, page0_gmm)
+
 def cmd_pll(gmm, args):
     print(" PLL \n-----\n", args)
     gmm.start()
     time.sleep(0.5)
-    print(gmm.pll.read_eeprom_string())
+    if pll_program == None:
+        print(gmm.pll.read_eeprom_string())
+    else:
+        prog_page(gmm, pll_program)
+    time.sleep(0.5)
     gmm.poweroff()
 
 c.set_defaults(func = cmd_pll)
