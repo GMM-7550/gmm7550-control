@@ -82,7 +82,7 @@ def cmd_pll(gmm, args):
         else:
             print(gmm.pll.configuration_as_string())
     else:
-        prog_page(gmm, pll_program)
+        prog_page(gmm, args.pll_program)
     # time.sleep(0.1)
     # gmm.poweroff()
 
