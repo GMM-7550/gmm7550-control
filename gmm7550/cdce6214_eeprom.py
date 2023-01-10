@@ -1,4 +1,4 @@
-factory = True
+factory = False
 
 eeprom = [
   ######### Default (factory) page
