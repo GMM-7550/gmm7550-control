@@ -67,3 +67,7 @@ After this command the PLL is configured to provide 100 MHz
 differential clock to the FPGA and to be accessible on the I2C-bus by
 default. The `-p 1` option is not required on subsequent runs of
 the `gmm7550` command.
+
+## Known Problems and Limitations
+
+PLL EEPROM programming does not work on the VisionFive board.
