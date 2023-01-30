@@ -44,6 +44,7 @@ command = { c : cmd.add_parser(c) for c in [
     'on', 'off',
     'reset',
     'pll',
+    'spi',
     'id',
 ]}
 
@@ -91,6 +92,25 @@ def cmd_pll(gmm, args):
     # gmm.poweroff()
 
 c.set_defaults(func = cmd_pll)
+
+############################################################
+#  SPI
+############################################################
+
+c = command['spi']
+
+c.add_argument('-i', '--info',
+               action='store_true',
+               dest='spi_info',
+               help='Print SPI device info')
+
+def cmd_spi(gmm, args):
+    gmm.start()
+    time.sleep(0.5)
+    if args.spi_info:
+        gmm.spi.print_info()
+
+c.set_defaults(func = cmd_spi)
 
 ############################################################
 

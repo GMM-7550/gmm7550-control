@@ -7,6 +7,8 @@ from gmm7550 import hat_gmm7550
 from gmm7550.pca9539a import PCA9539A
 from gmm7550.cdce6214 import CDCE6214
 
+from gmm7550.spi import SPI
+
 class I2C_GPIO:
     srst       = 0x0001
     por_en     = 0x0002
@@ -39,13 +41,15 @@ class GMM7550():
         self.i2c_gpio = None
         self.pll = None
 
+        # SPI (NOR FLASH or FPGA)
+        self.spi = SPI(self.cfg.spi_bus, self.cfg.spi_dev)
+
         # Hardware defaults
         self.refsel = 0
         self.hwswctrl = cfg.pll_page
         # self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
         self.cfg_mode = gm.CFG_mode.JTAG
         self.spi_sel = cfg.spi_sel
-        print("spi_sel:", self.spi_sel)
         self.soft_reset = True
 
     def is_active(self):
