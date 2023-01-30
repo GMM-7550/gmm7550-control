@@ -27,6 +27,10 @@ parser.add_argument('-p', '--pll-page', type=int, choices=[0, 1],
                     default=0,
                     help='PLL configuration EEPROM page')
 
+parser.add_argument('-s', '--spi-sel', type=int, choices=range(16),
+                    default=0,
+                    help='select SPI multiplexer configuration')
+
 cmd = parser.add_subparsers(title='Commands',
                             # dest='cmd',
                             )
@@ -94,6 +98,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = gmm7550.Config(args.config)
     config.pll_page = args.pll_page
+    config.spi_sel = args.spi_sel
     gmm = gmm7550.GMM7550(config)
 
     if 'func' in vars(args):

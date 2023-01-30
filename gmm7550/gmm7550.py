@@ -44,7 +44,8 @@ class GMM7550():
         self.hwswctrl = cfg.pll_page
         # self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
         self.cfg_mode = gm.CFG_mode.JTAG
-        self.spi_sel = [0, 0, 0, 0]
+        self.spi_sel = cfg.spi_sel
+        print("spi_sel:", self.spi_sel)
         self.soft_reset = True
 
     def is_active(self):
@@ -54,8 +55,7 @@ class GMM7550():
         self.i2c.acquire()
         self.i2c_gpio.set_inversion(I2C_GPIO_inversion)
         out = 0x0000
-        for i in range(3):
-            out |= self.spi_sel[i] << (12+i)
+        out |= self.spi_sel << 12
         out |= self.cfg_mode.value << 8
         out |= I2C_GPIO.gpio1 | I2C_GPIO.gpio4
         if self.refsel:
