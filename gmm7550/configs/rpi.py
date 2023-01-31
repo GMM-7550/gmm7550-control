@@ -7,3 +7,6 @@ gpio = {
     }
 
 i2c = 1
+
+spi_bus = 0
+spi_dev = 0
