@@ -27,7 +27,8 @@ parser.add_argument('-p', '--pll-page', type=int, choices=[0, 1],
                     default=0,
                     help='PLL configuration EEPROM page')
 
-parser.add_argument('-s', '--spi-sel', type=int, choices=range(16),
+parser.add_argument('-s', '--spi-sel', type=int,
+                    choices=range(16), metavar='{0..15}',
                     default=0,
                     help='select SPI multiplexer configuration')
 
