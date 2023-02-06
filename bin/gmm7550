@@ -105,11 +105,72 @@ c.add_argument('-i', '--info',
                dest='spi_info',
                help='Print SPI device info')
 
+c.add_argument('-r', '--read',
+               action='store_true',
+               dest='spi_read',
+               help='Read SPI NOR page(s) to file')
+
+c.add_argument('-w', '--write',
+               action='store_true',
+               dest='spi_write',
+               help='Write data from file to SPI NOR starting from the given page number')
+
+c.add_argument('-e', '--erase',
+               action='store_true',
+               dest='spi_erase',
+               help='Erase SPI NOR page(s)')
+
+c.add_argument('-p', '--page',
+               dest='spi_page', metavar='{page|from,to}',
+               help='Use SPI NOR page or page range'
+              )
+
+c.add_argument('-f', '--file',
+               help='Filename to read/write SPI NOR data'
+              )
+
 def cmd_spi(gmm, args):
+    if not (args.spi_info or args.spi_read or
+            args.spi_write or args.spi_erase):
+        print('At least one action [info/read/write/erase] should be specified')
+        return
+    if args.spi_page is None:
+        spi_start_page = 0
+        spi_end_page = spi_start_page
+    else:
+        _pages = args.spi_page.split(',')
+        if len(_pages) == 1:
+            spi_start_page = int(_pages[0])
+            spi_end_page = spi_start_page
+        else:
+            spi_start_page = int(_pages[0])
+            spi_end_page = int(_pages[1])
+    if (args.spi_read or args.spi_write) and (args.file is None):
+        print('SPI NOR read and write operations require file to be specified with --file (-f)')
+        return
+
     gmm.start()
-    time.sleep(0.5)
+    time.sleep(0.1)
+
     if args.spi_info:
         gmm.spi.print_info()
+
+    if args.spi_erase:
+        gmm.spi.sector_erase(0)
+
+    if args.spi_write:
+        with open(args.file, mode='br') as f:
+            data = f.read()
+        print(len(data))
+        gmm.spi.write_page(0, [0x12, 0x34, 0x56, 0x78])
+
+    if args.spi_read:
+        s = ""
+        for b in gmm.spi.read(0, 16):
+            s += "%02x " % b
+        print(s)
+
+    gmm.poweroff()
 
 c.set_defaults(func = cmd_spi)
 
