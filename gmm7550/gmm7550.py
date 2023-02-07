@@ -47,8 +47,8 @@ class GMM7550():
         # Hardware defaults
         self.refsel = 0
         self.hwswctrl = cfg.pll_page
-        # self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
-        self.cfg_mode = gm.CFG_mode.JTAG
+        self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
+        # self.cfg_mode = gm.CFG_mode.JTAG
         self.spi_sel = cfg.spi_sel
         self.soft_reset = True
 
