@@ -95,7 +95,7 @@ def cmd_pll(gmm, args):
 c.set_defaults(func = cmd_pll)
 
 ############################################################
-#  SPI
+#  SPI NOR
 ############################################################
 
 c = command['spi']
@@ -103,7 +103,7 @@ c = command['spi']
 c.add_argument('-i', '--info',
                action='store_true',
                dest='spi_info',
-               help='Print SPI device info')
+               help='Print SPI NOR device info')
 
 c.add_argument('-r', '--read',
                action='store_true',
@@ -161,8 +161,12 @@ def cmd_spi(gmm, args):
     if args.spi_write:
         with open(args.file, mode='br') as f:
             data = f.read()
-        print(len(data))
-        gmm.spi.write_page(0, [0x12, 0x34, 0x56, 0x78])
+        addr = 0
+        page_size = gmm.spi.nor.PAGE_SIZE
+        for p in range(len(data) // page_size):
+            bytes = list(data[addr : addr+page_size])
+            gmm.spi.write_page(addr, bytes)
+            addr += page_size
 
     if args.spi_read:
         s = ""
