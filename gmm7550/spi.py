@@ -13,6 +13,7 @@ class SPI():
         self.spidev = spidev.SpiDev(bus, dev)
         self.spidev.max_speed_hz = 100000
         self.spidev.mode = 0
+        self.nor = SPI_NOR()
 
     def print_info(self):
         print('SPI Device Info:')
@@ -85,8 +86,8 @@ class SPI():
             self.write_disable()
 
     def read(self, addr, count = SPI_NOR.PAGE_SIZE):
-        if count >= SPI_NOR.PAGE_SIZE:
-            count = SPI_NOR.PAGE_SIZE
+        if count >= self.nor.PAGE_SIZE:
+            count = self.nor.PAGE_SIZE
         xfer = [0x00 for i in range(count)]
         xfer.insert(0, addr & 0xff)
         addr >>= 8
