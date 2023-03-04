@@ -19,7 +19,7 @@ parser.add_argument('-V', '--version', action='version', version = '%(prog)s: ' 
 
 parser.add_argument('-v', '--verbose', action='store_true', help='be more verbose')
 
-parser.add_argument('-c', '--config', type=str, choices=['visionfive', 'rpi', 'sim'],
+parser.add_argument('-b', '--board', type=str, choices=['visionfive', 'rpi', 'sim'],
                     default='rpi',
                     help='select target hardware configuration')
 
@@ -31,6 +31,16 @@ parser.add_argument('-s', '--spi-sel', type=int,
                     choices=range(16), metavar='{0..15}',
                     default=0,
                     help='select SPI multiplexer configuration')
+
+parser.add_argument('-m', '--mode', type=str,
+                    choices=['spi_active', 'spi_passive', 'jtag'],
+                    default='spi_active',
+                    help='set FPGA configuration mode')
+
+parser.add_argument('-S', '--spi-mode', type=int,
+                    choices=range(4),
+                    default=0,
+                    help='SPI mode for SPI configuration')
 
 cmd = parser.add_subparsers(title='Commands',
                             # dest='cmd',
@@ -180,11 +190,21 @@ c.set_defaults(func = cmd_spi)
 
 ############################################################
 
+from gmm7550 import gatemate
+
 if __name__ == '__main__':
     args = parser.parse_args()
-    config = gmm7550.Config(args.config)
+    config = gmm7550.Config(args.board)
     config.pll_page = args.pll_page
     config.spi_sel = args.spi_sel
+
+    if args.mode == 'spi_active':
+        config.cfg_mode = gatemate.CFG_mode.SPI_ACTIVE.value | args.spi_mode
+    elif args.mode == 'spi_passive':
+        config.cfg_mode = gatemate.CFG_mode.SPI_PASSIVE.value | args.spi_mode
+    elif args.mode == 'jtag':
+        config.cfg_mode = gatemate.CFG_mode.JTAG.value
+
     gmm = gmm7550.GMM7550(config)
 
     if 'func' in vars(args):
