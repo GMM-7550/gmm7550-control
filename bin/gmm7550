@@ -19,7 +19,7 @@ parser.add_argument('-V', '--version', action='version', version = '%(prog)s: ' 
 
 parser.add_argument('-v', '--verbose', action='store_true', help='be more verbose')
 
-parser.add_argument('-c', '--config', type=str, choices=['visionfive', 'rpi', 'sim'],
+parser.add_argument('-b', '--board', type=str, choices=['visionfive', 'rpi', 'sim'],
                     default='rpi',
                     help='select target hardware configuration')
 
@@ -182,7 +182,7 @@ c.set_defaults(func = cmd_spi)
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    config = gmm7550.Config(args.config)
+    config = gmm7550.Config(args.board)
     config.pll_page = args.pll_page
     config.spi_sel = args.spi_sel
     gmm = gmm7550.GMM7550(config)
