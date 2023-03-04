@@ -44,13 +44,24 @@ class GMM7550():
         # SPI (NOR FLASH or FPGA)
         self.spi = SPI(self.cfg.spi_bus, self.cfg.spi_dev)
 
+        if not self._spi_sel_is_safe():
+            print("Warning: invalid combination of configuration mode and SPI multiplexer configuration")
+            print("Set to defaults: SPI mux control: 0, SPI_ACTIVE_0")
+            cfg.cfg_mode = 0
+            cfg.spi_sel = 0
+
         # Hardware defaults
         self.refsel = 0
         self.hwswctrl = cfg.pll_page
-        self.cfg_mode = gm.CFG_mode.SPI_ACTIVE_0
-        # self.cfg_mode = gm.CFG_mode.JTAG
+        self.cfg_mode = cfg.cfg_mode
         self.spi_sel = cfg.spi_sel
         self.soft_reset = True
+
+    def _spi_sel_is_safe(self):
+        # SPI Active FPGA configuration mode AND spi_sel0 == 1 are NOT SAFE
+        if self.cfg.cfg_mode & 0b1100 == 0 and self.cfg.spi_sel & 1 == 1:
+           return False
+        return True
 
     def is_active(self):
         return self.active
@@ -60,7 +71,7 @@ class GMM7550():
         self.i2c_gpio.set_inversion(I2C_GPIO_inversion)
         out = 0x0000
         out |= self.spi_sel << 12
-        out |= self.cfg_mode.value << 8
+        out |= self.cfg_mode << 8
         out |= I2C_GPIO.gpio1 | I2C_GPIO.gpio4
         if self.refsel:
             out |= I2C_GPIO.refsel
