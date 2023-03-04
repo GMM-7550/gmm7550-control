@@ -8,7 +8,8 @@ the 40-pin GPIO adapter board.
 
 ```
 [root@alarmpi ~]# gmm7550 --help
-usage: gmm7550 [-h] [-V] [-v] [-c {visionfive,rpi,sim}] [-p {0,1}] {power,on,off,reset,pll,id} ...
+usage: gmm7550 [-h] [-V] [-v] [-b {visionfive,rpi,sim}] [-p {0,1}] [-s {0..15}] [-m {spi_active,spi_passive,jtag}] [-S {0,1,2,3}]
+               {power,on,off,reset,pll,spi,id} ...
 
 Command line tool to program, test, and control GMM-7550 module connected via HAT adapter board to a VisionFive or Raspberry Pi SBC
 
@@ -16,13 +17,19 @@ options:
   -h, --help            show this help message and exit
   -V, --version         show program's version number and exit
   -v, --verbose         be more verbose
-  -c {visionfive,rpi,sim}, --config {visionfive,rpi,sim}
+  -b {visionfive,rpi,sim}, --board {visionfive,rpi,sim}
                         select target hardware configuration
   -p {0,1}, --pll-page {0,1}
                         PLL configuration EEPROM page
+  -s {0..15}, --spi-sel {0..15}
+                        select SPI multiplexer configuration
+  -m {spi_active,spi_passive,jtag}, --mode {spi_active,spi_passive,jtag}
+                        set FPGA configuration mode
+  -S {0,1,2,3}, --spi-mode {0,1,2,3}
+                        SPI mode for SPI configuration
 
 Commands:
-  {power,on,off,reset,pll,id}
+  {power,on,off,reset,pll,spi,id}
 ```
 
 ## PLL Configuration
