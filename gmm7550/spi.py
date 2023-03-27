@@ -96,3 +96,7 @@ class SPI():
         xfer.insert(0, addr & 0xff)
         xfer.insert(0, 0x03) # NORD -- Normal Read
         return self.spidev.xfer(xfer)[4:]
+
+    def cfg(self, data):
+        pass
+

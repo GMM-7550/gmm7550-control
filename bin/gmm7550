@@ -56,6 +56,7 @@ command = { c : cmd.add_parser(c) for c in [
     'reset',
     'pll',
     'spi',
+    'cfg',
     'id',
 ]}
 
@@ -189,7 +190,29 @@ def cmd_spi(gmm, args):
 c.set_defaults(func = cmd_spi)
 
 ############################################################
+# Configure FPGA (in SPI Passive mode)
+############################################################
 
+c = command['cfg']
+
+c.add_argument('-f', '--file',
+               help='Filename with FPGA configuration bitstream'
+              )
+
+def cmd_cfg(gmm, args):
+    if args.file is None:
+        print('Configuration command requires file to be specified with --file (-f)')
+        return
+    gmm.start()
+    time.sleep(0.1)
+
+    with open(args.file, mode='br') as f:
+        data = f.read()
+
+    gmm.spi.cfg(list(data))
+
+c.set_defaults(func = cmd_cfg)
+############################################################
 from gmm7550 import gatemate
 
 if __name__ == '__main__':
