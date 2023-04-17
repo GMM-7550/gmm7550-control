@@ -174,7 +174,7 @@ def cmd_spi(gmm, args):
             data = f.read()
         addr = 0
         page_size = gmm.spi.nor.PAGE_SIZE
-        for p in range(len(data) // page_size):
+        for p in range(len(data) // page_size) + 1:
             bytes = list(data[addr : addr+page_size])
             gmm.spi.write_page(addr, bytes)
             addr += page_size
