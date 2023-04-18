@@ -11,7 +11,7 @@ class SPI():
 
     def __init__(self, bus, dev):
         self.spidev = spidev.SpiDev(bus, dev)
-        self.spidev.max_speed_hz = 100000
+        self.spidev.max_speed_hz = 20000000
         self.spidev.mode = 0
         self.nor = SPI_NOR()
 
@@ -98,5 +98,4 @@ class SPI():
         return self.spidev.xfer(xfer)[4:]
 
     def cfg(self, data):
-        pass
-
+        self.spidev.xfer3(list(data))
