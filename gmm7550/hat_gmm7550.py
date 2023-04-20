@@ -1,3 +1,10 @@
+# This file is a part of the GMM-7550 Control library
+# <https://github.com/ak-fau/gmm7550-control.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2022-2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+
 from gmm7550.adm1177 import ADM1177
 
 class HAT_GMM7550():

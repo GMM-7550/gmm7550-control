@@ -1,3 +1,10 @@
+# This file is a part of the GMM-7550 Control library
+# <https://github.com/ak-fau/gmm7550-control.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2022-2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+
 class PCA9539A:
 
     def __init__(self, bus, a=0):
@@ -24,4 +31,3 @@ class PCA9539A:
 
     def set_config(self, data):
         self.bus.write_word_data(self.addr, 6, data)
-

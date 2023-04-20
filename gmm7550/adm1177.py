@@ -1,3 +1,10 @@
+# This file is a part of the GMM-7550 Control library
+# <https://github.com/ak-fau/gmm7550-control.git>
+#
+# SPDX-License-Identifier: MIT
+#
+# Copyright (c) 2022-2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+
 from gmm7550.sem_smbus import i2c_msg
 
 V_CONT = 0x01
@@ -28,7 +35,7 @@ class ADM1177:
         self.bus.acquire()
         self.bus.write_byte(self.addr, self.cmd_mask)
         self.bus.release()
- 
+
     def start_vi_cont(self):
         self.bus.acquire()
         self.bus.write_byte(self.addr, self.cmd_mask | V_CONT | I_CONT)
@@ -53,4 +60,3 @@ class ADM1177:
 
     def get_vi_string(self):
         return "V = %4.2f V,  I = %5.0f mA" % self.get_vi()
-
