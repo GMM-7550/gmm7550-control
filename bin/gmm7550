@@ -206,9 +206,9 @@ def cmd_spi(gmm, args):
         else:
             _addrs = arg.split(',')
             if len(_addrs) == 1:
-                return True, int(_addrs[0]), None
+                return True, int(_addrs[0], 0), None
             else:
-                return True, int(_addrs[0]), int(_addrs[1])
+                return True, int(_addrs[0], 0), int(_addrs[1], 0)
 
     spi_start, spi_end, unit_size = 0, None, 0
     addr_unit = AddrUnit.undefined
