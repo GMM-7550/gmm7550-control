@@ -75,6 +75,43 @@ differential clock to the FPGA and to be accessible on the I2C-bus by
 default. The `-p 1` option is not required on subsequent runs of
 the `gmm7550` command.
 
-## Known Problems and Limitations
+### Known Problems and Limitations
 
 PLL EEPROM programming does not work on the VisionFive board.
+
+## SPI NOR
+
+The `spi` subcommand allows read/program/erase content  of
+the SPI NOR chip on the module.
+
+To access the SPI NOR chip the SPI multiplexer control bit 1 should
+be set with common option `gmm7550 -s 2 spi ...`.
+
+```
+# gmm7550 spi --help
+usage: gmm7550 spi [-h] [-i] [-n] [-r] [-w] [-e] [-a {address|from,to}]
+                   [-p {page|from,to}] [-s {sector|from,to}]
+                   [-b {block|from,to}] [-B {block|from,to}] [-C] [-f FILE]
+
+options:
+  -h, --help            show this help message and exit
+  -i, --info            Print SPI NOR device info
+  -n, --dry-run         Print the commands that would be executed, but do not
+                        execute write and erase operations
+  -r, --read            Read SPI NOR page(s) to file
+  -w, --write           Write data from file to SPI NOR starting from the
+                        given page number
+  -e, --erase           Erase SPI NOR page(s)
+  -a {address|from,to}, --addr {address|from,to}
+                        Use SPI NOR address or address range
+  -p {page|from,to}, --page {page|from,to}
+                        Use SPI NOR page or range of pages
+  -s {sector|from,to}, --sector {sector|from,to}
+                        Use SPI NOR sector or range of sectors
+  -b {block|from,to}, --block32 {block|from,to}
+                        Use SPI NOR block (32KiB) or range of blocks
+  -B {block|from,to}, --block64 {block|from,to}
+                        Use SPI NOR block (64KiB) or range of blocks
+  -C, --chip            Use entire SPI NOR chip
+  -f FILE, --file FILE  Filename to read/write SPI NOR data
+```
