@@ -124,6 +124,11 @@ c.add_argument('-i', '--info',
                dest='spi_info',
                help='Print SPI NOR device info')
 
+c.add_argument('-n', '--dry-run',
+               action='store_false',
+               dest='spi_execute',
+               help='Print the commands that would be executed, but do not execute write and erase operations')
+
 c.add_argument('-r', '--read',
                action='store_true',
                dest='spi_read',
@@ -139,9 +144,34 @@ c.add_argument('-e', '--erase',
                dest='spi_erase',
                help='Erase SPI NOR page(s)')
 
+c.add_argument('-a', '--addr',
+               dest='spi_addr', metavar='{address|from,to}',
+               help='Use SPI NOR address or address range'
+              )
+
 c.add_argument('-p', '--page',
                dest='spi_page', metavar='{page|from,to}',
-               help='Use SPI NOR page or page range'
+               help='Use SPI NOR page or range of pages'
+              )
+
+c.add_argument('-s', '--sector',
+               dest='spi_sector', metavar='{sector|from,to}',
+               help='Use SPI NOR sector or range of sectors'
+              )
+
+c.add_argument('-b', '--block32',
+               dest='spi_block32', metavar='{block|from,to}',
+               help='Use SPI NOR block (32KiB) or range of blocks'
+              )
+
+c.add_argument('-B', '--block64',
+               dest='spi_block64', metavar='{block|from,to}',
+               help='Use SPI NOR block (64KiB) or range of blocks'
+              )
+
+c.add_argument('-C', '--chip',
+               action='store_true', dest='spi_chip',
+               help='Use entire SPI NOR chip'
               )
 
 c.add_argument('-f', '--file',
@@ -149,23 +179,107 @@ c.add_argument('-f', '--file',
               )
 
 def cmd_spi(gmm, args):
+    nor = gmm.spi.nor
+
     if not (args.spi_info or args.spi_read or
             args.spi_write or args.spi_erase):
         print('At least one action [info/read/write/erase] should be specified')
         return
-    if args.spi_page is None:
-        spi_start_page = 0
-        spi_end_page = spi_start_page
-    else:
-        _pages = args.spi_page.split(',')
-        if len(_pages) == 1:
-            spi_start_page = int(_pages[0])
-            spi_end_page = spi_start_page
-        else:
-            spi_start_page = int(_pages[0])
-            spi_end_page = int(_pages[1])
+
     if (args.spi_read or args.spi_write) and (args.file is None):
         print('SPI NOR read and write operations require file to be specified with --file (-f)')
+        return
+
+    from enum import Enum, auto
+    class AddrUnit(Enum):
+        undefined = auto()
+        chip = auto()
+        addr = auto()
+        page = auto()
+        sector = auto()
+        block32 = auto()
+        block64 = auto()
+
+    def try_addr(arg):
+        if arg is None:
+            return False, 0, None
+        else:
+            _addrs = arg.split(',')
+            if len(_addrs) == 1:
+                return True, int(_addrs[0]), None
+            else:
+                return True, int(_addrs[0]), int(_addrs[1])
+
+    spi_start, spi_end, unit_size = 0, None, 0
+    addr_unit = AddrUnit.undefined
+    addr_error = False
+
+    if args.spi_chip:
+        addr_unit = AddrUnit.chip
+        spi_start, spi_end = 0, nor.CHIP_SIZE-1
+        unit_size = 1
+
+    if not addr_error:
+        _set, start, end = try_addr(args.spi_addr)
+        addr_error = _set and addr_unit is not AddrUnit.undefined
+        if _set and addr_unit is AddrUnit.undefined:
+            addr_unit = AddrUnit.addr
+            spi_start, spi_end = start, end
+            unit_size = 1
+
+    if not addr_error:
+        _set, start, end = try_addr(args.spi_page)
+        addr_error = _set and addr_unit is not AddrUnit.undefined
+        if _set and addr_unit is AddrUnit.undefined:
+            addr_unit = AddrUnit.page
+            spi_start, spi_end = start, end
+            unit_size = nor.PAGE_SIZE
+
+    if not addr_error:
+        _set, start, end = try_addr(args.spi_sector)
+        addr_error = _set and addr_unit is not AddrUnit.undefined
+        if _set and addr_unit is AddrUnit.undefined:
+            addr_unit = AddrUnit.sector
+            spi_start, spi_end = start, end
+            unit_size = nor.SECTOR_SIZE
+
+    if not addr_error:
+        _set, start, end = try_addr(args.spi_block32)
+        addr_error = _set and addr_unit is not AddrUnit.undefined
+        if _set and addr_unit is AddrUnit.undefined:
+            addr_unit = AddrUnit.block32
+            spi_start, end = start, end
+            unit_size = nor.BLOCK32_SIZE
+
+    if not addr_error:
+        _set, start, end = try_addr(args.spi_block64)
+        addr_error = _set and addr_unit is not AddrUnit.undefined
+        if _set and addr_unit is AddrUnit.undefined:
+            addr_unit = AddrUnit.block64
+            spi_start, spi_end = start, end
+            unit_size = nor.BLOCK64_SIZE
+
+    if addr_error:
+        print('SPI NOR address or address range should be specified only once, (-a, -p, -s, -b, -B, -C options are mutually exclusive)')
+        return
+
+    if addr_unit is AddrUnit.undefined and (args.spi_read or
+                                            args.spi_write or
+                                            args.spi_erase):
+        print('SPI NOR address should be specified for read, write, and erase operations with one of the options: -a, -p, -s, -b, -B, -C')
+        return
+
+    spi_start_addr = spi_start * unit_size
+
+    if spi_end is None:
+        spi_end_addr = spi_start_addr + unit_size - 1
+    else:
+        spi_end_addr = (spi_end + 1) * unit_size - 1
+
+    print('SPI NOR address range for operation: 0x%x..0x%x' % (spi_start_addr, spi_end_addr))
+
+    if spi_end_addr > nor.CHIP_SIZE:
+        print('End address is greater than the SPI NOR chip size')
         return
 
     gmm.start()
@@ -175,23 +289,61 @@ def cmd_spi(gmm, args):
         gmm.spi.print_info()
 
     if args.spi_erase:
-        gmm.spi.sector_erase(0)
+
+        if addr_unit is AddrUnit.chip:
+            print('Chip erase')
+            if args.spi_execute:
+                gmm.spi.chip_erase()
+        else:
+            if (addr_unit is AddrUnit.sector or
+                addr_unit is AddrUnit.addr or
+                addr_unit is AddrUnit.page):
+                unit_size = nor.SECTOR_SIZE
+                spi_start_addr &= ~(unit_size - 1)
+                spi_end_addr &= ~(unit_size - 1)
+                for a in range(spi_start_addr, spi_end_addr+1, unit_size):
+                    print('Erase sector: 0x%x' % a)
+                    if args.spi_execute:
+                        gmm.spi.sector_erase(a)
+
+            if addr_unit is AddrUnit.block32:
+                for a in range(spi_start_addr, spi_end_addr+1, unit_size):
+                    print('Erase block32: 0x%x' % a)
+                    if args.spi_execute:
+                        gmm.spi.block32_erase(a)
+
+            if addr_unit is AddrUnit.block64:
+                for a in range(spi_start_addr, spi_end_addr+1, unit_size):
+                    print('Erase block64: 0x%x' % a)
+                    if args.spi_execute:
+                        gmm.spi.block64_erase(a)
 
     if args.spi_write:
         with open(args.file, mode='br') as f:
             data = f.read()
-        addr = 0
-        page_size = gmm.spi.nor.PAGE_SIZE
-        for p in range(len(data) // page_size) + 1:
-            bytes = list(data[addr : addr+page_size])
-            gmm.spi.write_page(addr, bytes)
-            addr += page_size
+        data_len = len(data)
+
+        if spi_end_addr - spi_start_addr + 1 < data_len:
+            print('File size is bigger than specified range')
+        else:
+            addr = spi_start_addr
+            page_size = nor.PAGE_SIZE
+            if args.spi_execute:
+                for p in range(data_len // page_size + 1):
+                    bytes = list(data[addr : addr+page_size])
+                    gmm.spi.write_page(addr, bytes)
+                    addr += page_size
 
     if args.spi_read:
-        s = ""
-        for b in gmm.spi.read(0, 16):
-            s += "%02x " % b
-        print(s)
+        with open(args.file, mode='bw') as f:
+            page_size = nor.PAGE_SIZE
+            tail = (spi_end_addr - spi_start_addr + 1) % page_size
+            for p in range((spi_end_addr - spi_start_addr + 1) // page_size):
+                b = gmm.spi.read(p * page_size, page_size)
+                f.write(bytearray(b))
+            if tail > 0:
+                b = gmm.spi.read((p+1) * page_size, tail)
+                f.write(bytearray(b))
 
     gmm.poweroff()
 
@@ -220,6 +372,7 @@ def cmd_cfg(gmm, args):
     gmm.spi.cfg(list(data))
 
 c.set_defaults(func = cmd_cfg)
+
 ############################################################
 from gmm7550 import gatemate
 

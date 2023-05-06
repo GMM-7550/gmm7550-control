@@ -13,8 +13,11 @@ class SPI_NOR():
     SECTOR_SIZE  =  4*1024 # Smallest erase unit
     BLOCK32_SIZE = 32*1024
     BLOCK64_SIZE = 64*1024
+    CHIP_SIZE    =  4*1024*1024
 
 class SPI():
+
+    nor = SPI_NOR()
 
     def __init__(self, bus, dev):
         self.spidev = spidev.SpiDev(bus, dev)
@@ -68,8 +71,8 @@ class SPI():
             self.wait_idle()
             self.write_disable()
 
-    def sector_erase(self, addr):
-        xfer = [ 0x20, # SER
+    def cmd_erase(self, cmd, addr):
+        xfer = [ cmd,
                  (addr >> 16) & 0xff,
                  (addr >>  8) & 0xff,
                   addr        & 0xff]
@@ -77,6 +80,15 @@ class SPI():
             self.spidev.xfer(xfer)
             self.wait_idle()
             self.write_disable()
+
+    def sector_erase(self, addr):
+        self.cmd_erase(0x20, addr)
+
+    def block32_erase(self, addr):
+        self.cmd_erase(0x52, addr)
+
+    def block64_erase(self, addr):
+        self.cmd_erase(0xd8, addr)
 
     def write_page(self, addr, data):
         data.insert(0, addr & 0xff)
