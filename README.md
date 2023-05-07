@@ -84,14 +84,51 @@ PLL EEPROM programming does not work on the VisionFive board.
 The `spi` subcommand allows read/program/erase content  of
 the SPI NOR chip on the module.
 
-To access the SPI NOR chip the SPI multiplexer control bit 1 should
-be set with common option `gmm7550 -s 2 spi ...`.
+To access the SPI NOR chip on the GMM-7550 module the SPI multiplexer
+control bit 1 should be set with common option `gmm7550 -s 2 spi ...`.
+
+To access an SPI NOR chip on a memory extension module connected
+to the GMM-7550 the FPGA on the module should be pre-configured
+with an SPI bridge design (in an SPI Passive mode) -- this is done
+automatically when `-M` (`--mem`) option is specified.  The FPGA
+configuration file is selected based on the connector the memory
+extension module is connected to: P1 -- west, P2 -- north, P3 -- east.
+
+Complete commands to read SPI NOR IDs on the module and on the memory
+extension module are below, followed by their output."
+
+```
+# gmm7550 -s 2 spi -i
+V = 5.04 V,  I =     6 mA
+SPI NOR address range for operation: 0x0..0x-1
+V = 5.03 V,  I =   121 mA
+SPI Device Info:
+JEDEC ID
+  manufacturer: 9d
+   memory type: 60
+      capacity: 16
+UID: 00 50 32 57 32 35 32 00 0b 12 4d ff 01 01 ff ff
+```
+
+```
+# gmm7550 --mode=spi_passive -s 1 spi --mem=east -i
+V = 5.04 V,  I =     6 mA
+SPI NOR address range for operation: 0x0..0x-1
+V = 5.06 V,  I =    76 mA
+SPI Device Info:
+JEDEC ID
+  manufacturer: 9d
+   memory type: 60
+      capacity: 18
+UID: 00 50 33 45 36 36 37 00 15 11 34 ff 01 01 ff ff
+```
 
 ```
 # gmm7550 spi --help
 usage: gmm7550 spi [-h] [-i] [-n] [-r] [-w] [-e] [-a {address|from,to}]
                    [-p {page|from,to}] [-s {sector|from,to}]
-                   [-b {block|from,to}] [-B {block|from,to}] [-C] [-f FILE]
+                   [-b {block|from,to}] [-B {block|from,to}] [-C]
+                   [-M {east,west,north}] [-f FILE]
 
 options:
   -h, --help            show this help message and exit
@@ -113,5 +150,7 @@ options:
   -B {block|from,to}, --block64 {block|from,to}
                         Use SPI NOR block (64KiB) or range of blocks
   -C, --chip            Use entire SPI NOR chip
+  -M {east,west,north}, --mem {east,west,north}
+                        Access SPI NOR on the memory add-on board
   -f FILE, --file FILE  Filename to read/write SPI NOR data
 ```
