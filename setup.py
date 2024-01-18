@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2022-2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+# Copyright (c) 2022-2023 Anton Kuzmin <ak@gmm7550.dev>
 
 from setuptools import setup
 
@@ -11,7 +11,7 @@ setup(
     name = "gmm7550",
     version = "0.1.0",
     author = "Anton Kuzmin",
-    author_email = "anton.kuzmin@cs.fau.de",
+    author_email = "ak@gmm7550.dev",
     description = ("A set of tools to control GMM-7550 GateMage FPGA Module "
                    "from VisionFive or Raspberry-Pi boards"),
     license = "MIT",

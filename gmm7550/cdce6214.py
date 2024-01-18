@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# Copyright (c) 2022-2023 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+# Copyright (c) 2022-2023 Anton Kuzmin <ak@gmm7550.dev>
 
 from time import sleep
 from gmm7550.sem_smbus import i2c_msg
