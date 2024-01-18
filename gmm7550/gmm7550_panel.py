@@ -1,5 +1,5 @@
 # This file is a part of the GMM-7550 Control library
-# <https://github.com/ak-fau/gmm7550-control.git>
+# <https://github.com/gmm-7550/gmm7550-control.git>
 #
 # SPDX-License-Identifier: MIT
 #
@@ -233,7 +233,7 @@ tabs.append(pn.pane.Markdown("# ID EEPROM", name="ID EEPROM"))
 tabs.append(pn.pane.Markdown("""
 # Reference materials
 
-- [project repository at GitHub](https://github.com/ak-fau/gmm7550/)
+- [project repository at GitHub](https://github.com/gmm-7550/gmm7550/)
 
 ## GateMate FPGA
 
